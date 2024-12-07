@@ -1,0 +1,101 @@
+package app
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"log"
+	"momo/utils"
+	"os"
+	"os/exec"
+	"strings"
+
+	"github.com/BurntSushi/toml"
+	"github.com/urfave/cli/v3"
+)
+
+func Update(update *cli.Command) *cli.Command {
+	update.Name = "update"
+	update.Aliases = []string{"up"}
+	update.Flags = []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "no-flatpak",
+			Usage: "Just removes flatpaks from the output",
+			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:  "stow-comp",
+			Usage: "Creates a file that is stow readable",
+			Value: false,
+		},
+	}
+	update.Action = func(ctx context.Context, c *cli.Command) error {
+
+		pwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("getting stuff ready...")
+
+		var configFolders []string
+		list, _ := os.ReadDir(pwd)
+		tree, err := CreateTree(list)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if tree.config == nil {
+			fmt.Println("No .config folder :|")
+			return nil
+		}
+		folders, err := os.ReadDir(strings.Join([]string{pwd, tree.config.Name()}, "/"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, dir := range folders {
+			if dir.IsDir() {
+				configFolders = append(configFolders, dir.Name())
+			}
+		}
+
+		var flatpaks []string
+		if !c.Bool("no-flatpak") && !c.Bool("only-stow") {
+			fmt.Println("Going with flatpaks")
+			cmd := exec.Command("flatpak", "list", "--app", "--columns=application")
+			cmd.Stdout = nil
+			cmd.Stderr = nil // shut that output
+			out, err := cmd.Output()
+			if err != nil {
+				log.Fatal(err)
+			}
+			flatpaks = strings.Split(string(out), "\n")
+
+			var buf = new(bytes.Buffer)
+			err = toml.NewEncoder(buf).Encode(utils.ConfigToml{
+				Stow:     configFolders,
+				Flatpaks: flatpaks,
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			configFile, err := os.OpenFile("config.toml", os.O_RDWR|os.O_CREATE, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer configFile.Close()
+
+			_, err = configFile.WriteString(buf.String())
+			if err != nil {
+				fmt.Println("there was an error while writting the file!")
+				log.Fatal(err)
+			}
+
+			println("Output to config.toml")
+		}
+		return nil
+	}
+	return update
+}

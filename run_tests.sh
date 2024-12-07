@@ -1,5 +1,16 @@
 #!/bin/env bash
 
-printf("running tests")
+PROJECT_FOLDER=/home/$USER/Projects
 
-./bin/linux/momo update
+echo "-----------------  running tests -----------------"
+cd ./tests/home/
+
+printf "> momo update \n\n"
+$PROJECT_FOLDER/momo/bin/linux/momo update
+
+printf "\n--- Content of config.toml ---\n\n"
+cat config.toml
+
+printf "\n\n> momo install \n\n"
+$PROJECT_FOLDER/momo/bin/linux/momo install
+echo "-----------------   tests done   -----------------"

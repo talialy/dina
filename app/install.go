@@ -16,6 +16,8 @@ import (
 func Install(install *cli.Command) *cli.Command {
 	install.Name = "install"
 	install.Aliases = []string{"ins"}
+	install.Usage = "Uses config.toml to setup the system"
+	install.Description = "Uses the folder structure to generate an array of packages to install using your package manager. \n If no command passed, it will use both flatpaks and snaps to get the packages"
 	install.Flags = []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "force",
@@ -48,11 +50,17 @@ func Install(install *cli.Command) *cli.Command {
 			selectedFolder := strings.Join([]string{configPath, folder}, "/")
 			_, err := os.ReadDir(selectedFolder)
 
-			if err == nil && !c.Bool("omit") {
+			if err != nil {
+				return nil
+			}
+
+			if !c.Bool("omit") {
 				println(folder, "folder already exists!")
 				println("if you really want to continue")
 				println("run with the --force flag or --omit")
 				return nil
+			} else {
+				println(folder, "exists, omitting")
 			}
 
 		}

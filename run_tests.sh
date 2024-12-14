@@ -13,4 +13,5 @@ cat config.toml
 
 printf "\n\n> momo install \n\n"
 $PROJECT_FOLDER/momo/bin/linux/momo install
+
 echo "-----------------   tests done   -----------------"

@@ -17,6 +17,7 @@ import (
 func Update(update *cli.Command) *cli.Command {
 	update.Name = "update"
 	update.Aliases = []string{"up"}
+	update.Usage = "Updates the config.toml with the current folder structure"
 	update.Flags = []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "no-flatpak",
@@ -35,7 +36,6 @@ func Update(update *cli.Command) *cli.Command {
 		if err != nil {
 			return err
 		}
-
 		fmt.Println("getting stuff ready...")
 
 		var configFolders []string

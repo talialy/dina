@@ -18,6 +18,8 @@ func Init() {
 			Install(&install),
 		},
 	}
+	cmd.Usage = "the not so good system setup"
+	cmd.UsageText = "momo <command> <flag>"
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)

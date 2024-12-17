@@ -34,29 +34,21 @@ func Update(update *cli.Command) *cli.Command {
 	}
 	update.Action = func(ctx context.Context, c *cli.Command) error {
 
-		pwd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
 		fmt.Println("getting stuff ready...")
 
 		var configFolders []string
-		list, _ := os.ReadDir(pwd)
-		tree, err := CreateTree(list)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if tree.config == nil {
+		configDir, err := os.ReadDir("config")
+		if os.IsNotExist(err) {
 			fmt.Println("No config folder :|")
 			return nil
 		}
-		folders, err := os.ReadDir(strings.Join([]string{pwd, tree.config.Name()}, "/"))
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, dir := range folders {
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, dir := range configDir {
 			if dir.IsDir() {
 				configFolders = append(configFolders, dir.Name())
 			}

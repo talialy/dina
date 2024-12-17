@@ -1,20 +1,21 @@
 BIN=bin
-DIST_LINUX=$(BIN)/linux
+DIST=$(BIN)
 GO_BUILD=go build
-BINARY_NAME=momo
+BINARY_NAME=dina
 GOFMT=gofmt
 GOFILES=$(shell find . -name '*.go')
 
 
-.PHONY: build-linux
-build-linux:
-	@echo "exporting for linux"
-	@mkdir -p $(DIST_LINUX)
-	@GOOS=linux GOARCH=amd64 $(GO_BUILD) -o ./$(DIST_LINUX)/$(BINARY_NAME)
+.PHONY: build
+build:
+	@echo "exporting binary"
+	@mkdir -p $(DIST)
+	@GOOS=linux GOARCH=amd64 $(GO_BUILD) -o ./$(DIST)/$(BINARY_NAME)
 
 .PHONY: test
-test: format build-linux
-	@./run_tests.sh
+test: format build
+	podman build -t dina .
+	podman run -it -e=./.env dina
 
 .PHONY: format
 format:
@@ -29,4 +30,4 @@ clean:
 	@echo "Cleaned."
 
 .PHONY: all
-all: format build-linux
+all: format build

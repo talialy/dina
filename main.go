@@ -1,6 +1,6 @@
 package main
 
-import "momo/app"
+import "dina/app"
 
 func main() {
 	app.Init()

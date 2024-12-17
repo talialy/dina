@@ -3,12 +3,14 @@ package app
 import (
 	"bytes"
 	"context"
+	"dina/utils"
+	"errors"
 	"fmt"
 	"log"
-	"momo/utils"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/urfave/cli/v3"
@@ -47,7 +49,7 @@ func Update(update *cli.Command) *cli.Command {
 		}
 
 		if tree.config == nil {
-			fmt.Println("No .config folder :|")
+			fmt.Println("No config folder :|")
 			return nil
 		}
 		folders, err := os.ReadDir(strings.Join([]string{pwd, tree.config.Name()}, "/"))
@@ -67,7 +69,10 @@ func Update(update *cli.Command) *cli.Command {
 			cmd.Stdout = nil
 			cmd.Stderr = nil // shut that output
 			out, err := cmd.Output()
-			if err != nil {
+			if errors.Is(err, exec.ErrNotFound) {
+				fmt.Println("no flatpak was found. Running without it")
+				time.Sleep(300)
+			} else if err != nil {
 				log.Fatal(err)
 			}
 			flatpaks = strings.Split(string(out), "\n")

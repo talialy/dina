@@ -1,0 +1,9 @@
+[[Stow]]
+  Name = "hypr"
+  Dependencies = ["blight", "fish", ""]
+  Scripts = ["blight", "fish", "", "sunset.sh"]
+
+[[Stow]]
+  Name = "kitty"
+  Dependencies = [""]
+  Scripts = ["", "fonts.sh"]

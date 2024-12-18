@@ -36,17 +36,21 @@ It will create the file config.toml and organize it using the folder structure. 
 A basic config.toml file is as this:
 
 ```toml
-[stow]
-[stow.yazi]
-[stow.hypr]
-scripts = [ "fish.sh" ]
-dependencies = ["fish", "blight"]
-[stow.kitty]
+
+[[stow]]
+name = "yazi"
+scripts = [ ]
+dependencies = [ ]
+
+[[stow]]
+name = "hypr"
+dependencies = [ "blight", "fish" ]
+
+[[stow]]
+name = "kitty"
 scripts = [ "fonts.sh" ]
-flatpak = [
-    "com.spotify.Client",
-    "org.mozilla.firefox"
-]
+
+flatpak = [ "com.spotify.Client", "org.mozilla.firefox" ]
 ```
 
 The above example would use the next folder structure:

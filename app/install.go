@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/urfave/cli/v3"
 )
 
@@ -41,23 +40,26 @@ func Install(install *cli.Command) *cli.Command {
 			log.Fatal(err)
 		}
 		if us.Username == "root" {
-			style := lipgloss.NewStyle().Foreground(lipgloss.Color("red"))
-			fmt.Println(style.Render("Do not run as root"))
+			fmt.Println("Do not run as root")
 			return nil
 		}
 
 		read, err := os.ReadFile("config.toml")
 		if errors.Is(err, os.ErrNotExist) {
 			fmt.Println("config.toml not found! :(")
-		} else if err != nil {
-			log.Fatal(err)
 		}
 
 		var config utils.ConfigToml
 		_, err = toml.Decode(string(read), &config)
+
 		configPath, err := os.UserConfigDir()
 		if err != nil {
 			log.Fatal(err)
+		}
+		_, err = os.Stat(configPath)
+		if errors.Is(err, os.ErrNotExist) {
+			fmt.Println("Why no config folder?")
+			return nil
 		}
 
 		currentDirectory, err := os.Getwd()
@@ -66,35 +68,34 @@ func Install(install *cli.Command) *cli.Command {
 		}
 
 		for _, folder := range config.Stow {
-			TargetFolder := strings.Join([]string{configPath, folder, ""}, "/")
-			currentFolder := strings.Join([]string{currentDirectory, "config", folder, ""}, "/")
-			_, err := os.ReadDir(TargetFolder)
+			TargetFolder := strings.Join([]string{configPath, folder.Name, ""}, "/")
+			currentFolder := strings.Join([]string{currentDirectory, "config", folder.Name, ""}, "/")
+			_, err := os.Stat(TargetFolder)
 
-			if errors.Is(err, os.ErrNotExist) {
-				cmd := exec.Command("ln", "-s", currentFolder, configPath)
-				fmt.Println("ln", "-s", currentFolder, configPath)
-				cmd.Stdout = nil
-				cmd.Stderr = nil // shut that output, yeah, rehusing code
-				_, err = cmd.Output()
-				if err != nil {
-					log.Fatal(err)
+			if !errors.Is(err, os.ErrNotExist) {
+				switch {
+				case c.Bool("omit"):
+					println(folder.Name, "exists, omitting")
+				case c.Bool("force"):
+					println(folder.Name, "exists, forcing contents")
+				default:
+					println(folder.Name, "folder already exists!")
+					println("if you really want to continue")
+					println("run with the --force flag or --omit")
+					return nil
 				}
-				continue
 			}
 
-			switch {
-			case c.Bool("omit"):
-				println(folder, "exists, omitting")
-			case c.Bool("force"):
-				println(folder, "exists, forcing contents")
-			default:
-				println(folder, "folder already exists!")
-				println("if you really want to continue")
-				println("run with the --force flag or --omit")
-				return nil
+			cmd := exec.Command("ln", "-s", currentFolder, configPath)
+			fmt.Println("ln", "-s", currentFolder, configPath)
+			cmd.Stdout = nil
+			cmd.Stderr = nil // shut that output, yeah, rehusing code
+			_, err = cmd.Output()
+			if err != nil {
+				log.Fatal(err)
 			}
+
 		}
-
 		return nil
 	}
 	return install

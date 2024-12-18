@@ -13,9 +13,11 @@ A complicated solution for simplifying your dotfiles.
 - [Roadmap](#roadmap)
 
 ## Installation
+It is still in a work in progress, sadly. It is not recommended to install and it is not supposed to work to install still.
+
 ##### go
 ```bash
-go install https://github.com/talialy/dina
+# coming
 ```
 ##### bash
 ```bash

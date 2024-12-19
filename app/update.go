@@ -3,7 +3,6 @@ package app
 import (
 	"bytes"
 	"context"
-	"dina/utils"
 	"errors"
 	"fmt"
 	"log"
@@ -12,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/talialy/dina/utils"
 	"github.com/urfave/cli/v3"
 )
 

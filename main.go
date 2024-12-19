@@ -1,6 +1,6 @@
 package main
 
-import "dina/app"
+import "github.com/talialy/dina/app"
 
 func main() {
 	app.Init()

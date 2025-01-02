@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/talialy/dina/utils"
+	"github.com/talialy/dina/utils/config"
 	"github.com/urfave/cli/v3"
 )
 
@@ -29,13 +29,13 @@ func Update(update *cli.Command) *cli.Command {
 
 	update.Action = func(ctx context.Context, c *cli.Command) error {
 
-		var configFolders []utils.StowConfigToml
+		var configFolders []config.StowConfigToml
 		configDir, err := os.ReadDir("config")
 		if errors.Is(err, os.ErrNotExist) {
 			fmt.Println("No local config folder found")
 			return nil
 		}
-		var newStowConfig utils.StowConfigToml
+		var newStowConfig config.StowConfigToml
 
 		for _, dir := range configDir {
 			if !dir.IsDir() {
@@ -86,16 +86,16 @@ func Update(update *cli.Command) *cli.Command {
 		}
 
 		var buf = new(bytes.Buffer)
-		err = toml.NewEncoder(buf).Encode(utils.ConfigToml{
+		encoder := toml.NewEncoder(buf)
+		err = encoder.Encode(config.ConfigToml{
 			Stow:     configFolders,
 			Flatpaks: flatpaks,
 		})
-
 		if err != nil {
 			log.Fatal(err)
 		}
-		currentFolder, err := os.Getwd()
 
+		currentFolder, err := os.Getwd()
 		if err != nil {
 			log.Fatal(err)
 		}

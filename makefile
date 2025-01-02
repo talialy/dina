@@ -1,13 +1,14 @@
 BIN=bin
 DIST=$(BIN)
-GO_BUILD=go build
+GO=go
+GO_BUILD=$(GO) build
 BINARY_NAME=dina
 GOFMT=gofmt
 GOFILES=$(shell find . -name '*.go')
 
 
 .PHONY: build
-build:
+build: format
 	@echo "exporting binary"
 	@mkdir -p $(DIST)
 	@GOOS=linux GOARCH=amd64 $(GO_BUILD) -o ./$(DIST)/$(BINARY_NAME)
@@ -20,13 +21,14 @@ test: format build
 .PHONY: format
 format:
 	@echo "Formatting Go files..."
+	$(GO) mod tidy
 	$(GOFMT) -w $(GOFILES)
 	@echo "Done."
 
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	go clean
+	$(GO) clean
 	@echo "Cleaned."
 
 .PHONY: all

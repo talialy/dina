@@ -1,21 +1,24 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
-	"strings"
+	"path/filepath"
 	"syscall"
 
+	"github.com/talialy/dina/cmd/backups"
 	"github.com/talialy/dina/utils/config"
 )
 
 // OptHandlerFlags gives the mode that the files are going to be installing.
-// it depends on the flag --type withing dina install
+// it only operates one based on less disruptive to more.
 type OptHandlerFlags struct {
-	Omit   bool
-	Backup bool
-	Force  bool
+	Omit        bool
+	Backup      bool
+	BackupStamp string
+	Force       bool
 }
 
 // controlFlow is used to indicate a higher for loop on what to do next
@@ -39,23 +42,23 @@ const (
 // creates a timestap backup inside ~/.dina and moves the folder inside it
 func FilesHandler(opt OptHandlerFlags, folder string) controlFlow {
 	configPath := config.UserConfigDir()
-
-	targetFolder := strings.Join([]string{configPath, folder}, "/")
+	targetFolder := filepath.Join(configPath, folder)
 	switch {
 	case opt.Omit:
 		fmt.Printf("%s was found, skipping\n", folder)
 		return Continue
+
 	case opt.Backup:
-		fmt.Printf("making backup of %s and installing", folder)
-		err := config.MakeBackup(targetFolder)
-		if err != nil {
-			log.Fatal("there was an error while doing the backup", err)
+		fmt.Printf("Making backup with %s as a stamp\n", opt.BackupStamp)
+		err := backups.Create(opt.BackupStamp)
+		if err != nil && !errors.Is(err, backups.ErrBackupExist) {
+			log.Fatal("there was an error while making the backup folder ", err)
 		}
-		err = os.Remove(targetFolder)
-		if err != nil {
-			log.Fatal("there was an error while removing the folder", err)
+		bckpErr := backups.MkBckp(targetFolder, opt.BackupStamp)
+		if bckpErr != nil {
+			log.Fatal(bckpErr)
 		}
-		return void
+		os.RemoveAll(targetFolder)
 	case opt.Force:
 		// scary!
 		fmt.Printf("%s was found, forcesfully installing\n", folder)

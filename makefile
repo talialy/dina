@@ -13,10 +13,15 @@ build: format
 	@mkdir -p $(DIST)
 	@GOOS=linux GOARCH=amd64 $(GO_BUILD) -o ./$(DIST)/$(BINARY_NAME)
 
-.PHONY: test
-test: format build
+.PHONY: docker
+docker: format build
 	podman build -t dina .
 	podman run -it -e=./.env dina
+
+
+.PHONY: test
+	test: format
+	go test -v ./tests
 
 .PHONY: format
 format:

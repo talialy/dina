@@ -100,7 +100,7 @@ func Update(update *cli.Command) *cli.Command {
 			log.Fatal(err)
 		}
 
-		configFile, err := os.Create(strings.Join([]string{currentFolder, "config.toml"}, "/"))
+		configFile, err := os.Create(strings.Join([]string{currentFolder, ".dina.toml"}, "/"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -111,8 +111,8 @@ func Update(update *cli.Command) *cli.Command {
 			fmt.Println("there was an error while writting the file!")
 			log.Fatal(err)
 		}
-		println("Everything's done 🍓")
-		println(">> config.toml")
+		fmt.Println("Everything's done 🍓")
+		fmt.Printf(">> %s\n", configFile.Name())
 		return nil
 	}
 	return update

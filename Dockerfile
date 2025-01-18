@@ -17,6 +17,7 @@ RUN chown -R dina:wheel /home/dina/.dots/
 
 USER dina
 WORKDIR /home/dina/.dots
-RUN mkdir ~/.config \
-    && dina \
+RUN mkdir -p ~/.config/hypr \
+    && touch ~/.config/hypr/hyprland.conf \
+    && dina up && dina i \
     && /usr/bin/bash

@@ -31,7 +31,6 @@ Those will change the output of the file. After updating, it is recommended to c
 ## Install
 
 ```bash
-dina install
 ```
 
 Using the config file, it stows every directory and file inside it. Then installing the apps and dependencies.

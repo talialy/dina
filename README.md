@@ -166,6 +166,7 @@ dina backup --list
 🟢 Working on it. 🟡 Planned. 🔴 Unsure
 
 - [ ] 🟢 Add external package managers
+- [ ] 🟢 Backup uses dina filesystem
 - [ ] 🟡 downloading fonts support
 - [ ] 🟡 Add snap package support 
 - [ ] 🟡 Support for multiple users

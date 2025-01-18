@@ -18,7 +18,7 @@ func Init() {
 			Install(&install),
 		},
 	}
-	cmd.Usage = "the not so good for system setup"
+	cmd.Usage = "the not so good dotfiles manager for system setup"
 	cmd.UsageText = "dina <command> <flag>"
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {

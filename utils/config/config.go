@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -36,9 +35,10 @@ func UserConfigDir() string {
 }
 
 // it returns the installer config for dina.
-// this is usually config.toml unless the user specifies otherwise
-func UserDinaConfig(path string) (*ConfigToml, error) {
-	configFile := filepath.Join(path, "config.toml")
+// this is usually config.toml unless the user specifies otherwise.
+// If nothing can be found it returns os.ErrNotExist
+func ReadConfFile(path string) (*ConfigToml, error) {
+	configFile := filepath.Join(path, ".dina.toml")
 	read, err := os.ReadFile(configFile)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, os.ErrNotExist
@@ -52,32 +52,18 @@ func UserDinaConfig(path string) (*ConfigToml, error) {
 	return &config, nil
 }
 
-// DinaFolder returns the config folder for dina with stat. It returns os.ErrNotExist if nothing can be found
-func DinaConfigDir() (os.FileInfo, error) {
+// DinaFolder returns the path to the config folder for dina.
+// If nothing is found, it will create the folder before
+// returning the path
+func GetPath() string {
 	homeFolder, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
 	}
-	path := strings.Join([]string{homeFolder, ".dina"}, "/")
-	f, err := os.Stat(path)
-	return f, err
-}
-
-// MakeBackup creates a backup of the folder passed. It goes inside /.dina/backups
-func MakeBackup(dirPath string) error {
-	var backupError error = nil
-	_, err := os.Stat(dirPath)
-	backupError = err
-
-	return backupError
-}
-
-// GetBackups returns a list from the entries inside /.dina/backups
-func GetBackups() ([]os.DirEntry, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
+	path := filepath.Join(homeFolder, ".dina")
+	err = os.Mkdir(path, 0755)
+	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
-	backups, err := os.ReadDir(strings.Join([]string{home, ".dina/backup"}, "/"))
-	return backups, err
+	return path
 }

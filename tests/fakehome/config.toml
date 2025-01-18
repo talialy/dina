@@ -7,3 +7,7 @@
   Name = "kitty"
   Dependencies = [""]
   Scripts = ["", "fonts.sh"]
+
+[[Stow]]
+  Name = "awesome"
+  Dependencies = [""]
